@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>窗櫺紋紙本生成器</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@4.0.1/dist/pptxgen.bundle.js"></script>
+<style>
+:root{--orange:#E8552D;--amber:#F4A93C;--teal:#028090;--ink:#12343B;--bg:#FFFCF7;--line:#EFE6D8;--muted:#7A7068;--soft:#FFF4E6;--wood:#6B3E1D;}
+*{box-sizing:border-box;}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Microsoft JhengHei","PingFang TC","Noto Sans TC","Heiti TC",sans-serif;}
+header.top{display:flex;align-items:center;gap:14px;padding:14px 22px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20;}
+header.top .logo{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#6B3E1D,#C27A3E);display:grid;place-items:center;color:#fff;font-weight:900;font-size:22px;flex:none;}
+header.top h1{font-size:20px;margin:0;}
+header.top p{margin:2px 0 0;font-size:13px;color:var(--muted);}
+header.top .actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;}
+button{font-family:inherit;cursor:pointer;border:none;border-radius:10px;padding:10px 16px;font-size:15px;font-weight:700;transition:.15s;}
+button.primary{background:var(--orange);color:#fff;}button.primary:hover{background:#d04a26;}
+button.teal{background:var(--teal);color:#fff;}button.teal:hover{background:#026f7c;}
+button.ghost{background:var(--soft);color:var(--ink);border:1px solid #F3DFC2;}button.ghost:hover{background:#FFEBD1;}
+button.sm{padding:7px 10px;font-size:13px;}
+button:disabled{opacity:.5;cursor:wait;}
+main{display:grid;grid-template-columns:350px 1fr;min-height:calc(100vh - 77px);}
+aside{background:#fff;border-right:1px solid var(--line);padding:18px 18px 40px;overflow:auto;}
+section.preview{padding:22px;overflow:auto;}
+.group{margin-bottom:18px;padding-bottom:14px;border-bottom:1px dashed var(--line);}
+.group h3{margin:0 0 10px;font-size:14px;color:var(--teal);letter-spacing:.5px;display:flex;align-items:center;gap:6px;}
+.group h3 .n{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--teal);color:#fff;font-size:12px;}
+label.row{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:14px;margin:8px 0;}
+label.row span.k{font-weight:600;}
+select,input[type=text],input[type=number]{font-family:inherit;font-size:14px;padding:7px 9px;border:1px solid #E2D7C5;border-radius:8px;background:#fff;color:var(--ink);min-width:0;}
+input[type=text]{width:100%;}
+input[type=range]{width:100%;accent-color:var(--orange);}
+.seg{display:flex;background:var(--soft);border-radius:10px;padding:3px;gap:3px;}
+.seg button{flex:1;background:transparent;color:var(--muted);padding:7px 4px;font-size:13px;border-radius:8px;}
+.seg button.on{background:#fff;color:var(--orange);box-shadow:0 1px 3px rgba(0,0,0,.08);}
+.hint{font-size:12px;color:var(--muted);margin:4px 0 0;line-height:1.5;}
+.check{display:flex;align-items:center;gap:8px;font-size:14px;margin:6px 0;}
+.check input{accent-color:var(--orange);width:17px;height:17px;}
+.grid5{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;}
+.grid6{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;}
+.pbtn{border:2px solid var(--line);background:#fff;border-radius:10px;padding:4px 2px 3px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11.5px;font-weight:700;color:var(--ink);cursor:pointer;}
+.pbtn svg{width:46px;height:46px;}
+.pbtn.active{border-color:var(--orange);background:var(--soft);}
+.sbtn{border:2px solid var(--line);background:#fff;border-radius:10px;padding:4px 1px 3px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;font-weight:700;color:var(--ink);cursor:pointer;}
+.sbtn svg{width:30px;height:30px;}
+.sbtn.active{border-color:var(--orange);background:var(--soft);}
+.palrow{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:8px;}
+.palbtn{border:2px solid var(--line);background:#fff;border-radius:10px;padding:5px 2px;font-size:11.5px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--ink);}
+.palbtn i{width:30px;height:18px;border-radius:5px;display:block;border:3px solid;}
+.palbtn.active{border-color:var(--orange);background:var(--soft);}
+.chars{display:flex;gap:6px;margin-top:6px;}
+.chars button{flex:1;font-size:18px;padding:6px 0;}
+.pages{display:flex;flex-wrap:wrap;gap:22px;justify-content:center;}
+.page{width:210mm;height:297mm;background:#fff;box-shadow:0 6px 24px rgba(40,30,10,.12);transform-origin:top left;}
+.page svg{width:100%;height:100%;display:block;}
+.pagewrap{position:relative;}
+.pagewrap .tag{position:absolute;top:-10px;left:8px;background:var(--teal);color:#fff;font-size:12px;padding:3px 10px;border-radius:999px;z-index:2;}
+.scalebar{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);margin-bottom:14px;flex-wrap:wrap;}
+.scalebar input{width:160px;}
+footer.site{padding:18px;text-align:center;font-size:12px;color:var(--muted);}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;opacity:0;pointer-events:none;transition:.3s;z-index:50;}
+.toast.show{opacity:1;}
+.mobile-toggle{display:none;}
+/* 介紹區 */
+.intro{background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px 24px;margin:0 auto 22px;max-width:1100px;box-shadow:0 4px 18px rgba(40,30,10,.06);}
+.intro-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.intro-head h2{margin:0;font-size:24px;}
+.intro-head h2 span{color:var(--wood);}
+.intro-head .tag2{background:#F3E6D8;color:var(--wood);font-size:13px;font-weight:700;padding:4px 10px;border-radius:999px;}
+.intro-head button{margin-left:auto;}
+.intro-lead{font-size:16px;line-height:1.8;margin:12px 0 16px;color:#2c4a52;}
+.samples{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:0 0 16px;}
+.sample{border-radius:14px;overflow:hidden;border:1px solid var(--line);background:var(--bg);text-align:center;}
+.sample svg{display:block;width:100%;height:auto;}
+.sample span{display:block;font-size:13px;font-weight:700;padding:6px;}
+.intro-grid{display:grid;grid-template-columns:1.15fr 1fr 1.1fr;gap:16px;}
+.icard{border-radius:14px;padding:16px 16px 14px;background:var(--bg);border:1px solid var(--line);}
+.icard h4{margin:0 0 8px;font-size:17px;display:flex;align-items:center;gap:8px;}
+.icard h4 i{font-style:normal;display:inline-grid;place-items:center;width:26px;height:26px;border-radius:8px;color:#fff;font-size:14px;}
+.icard p{margin:0 0 8px;font-size:14.5px;line-height:1.75;}
+.icard ul{margin:4px 0 0;padding-left:18px;font-size:14.5px;line-height:1.75;}
+.icard li{margin-bottom:4px;}
+.mean{display:grid;grid-template-columns:auto 1fr;gap:5px 10px;font-size:14.5px;line-height:1.55;}
+.mean b{color:var(--wood);white-space:nowrap;}
+.steps{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
+.step{flex:1 1 200px;background:var(--soft);border-radius:12px;padding:10px 12px;font-size:14px;line-height:1.6;}
+.step b{display:block;color:var(--orange);font-size:15px;margin-bottom:2px;}
+.intro.mini .intro-body{display:none;}
+@media (max-width:1100px){.intro-grid{grid-template-columns:1fr 1fr;}.intro-grid .icard:last-child{grid-column:1 / -1;}}
+@media (max-width:900px){
+  main{grid-template-columns:1fr;}
+  aside{border-right:none;border-bottom:1px solid var(--line);}
+  header.top h1{font-size:17px;}header.top p{display:none;}
+  header.top .actions button{padding:8px 10px;font-size:13px;}
+  .mobile-toggle{display:block;width:100%;margin-bottom:6px;}
+  aside.collapsed .panel{display:none;}
+}
+@media (max-width:700px){.intro{padding:16px;}.intro-head h2{font-size:20px;}.intro-grid{grid-template-columns:1fr;}.intro-lead{font-size:15px;}.samples{grid-template-columns:repeat(2,1fr);}}
+@media print{
+  @page{size:A4 portrait;margin:0;}
+  body{background:#fff;}
+  header.top,aside,.scalebar,footer.site,.toast,.pagewrap .tag,.intro{display:none !important;}
+  main{display:block;min-height:0;}
+  section.preview{padding:0;overflow:visible;}
+  .pages{display:block;}
+  .pagewrap{margin:0;width:auto !important;height:auto !important;}
+  .page{box-shadow:none;transform:none !important;margin:0;page-break-after:always;break-after:page;width:210mm;height:297mm;}
+  .pagewrap:last-child .page{page-break-after:auto;break-after:auto;}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="logo">窗</div>
+  <div>
+    <h1>窗櫺紋紙本生成器</h1>
+    <p>老房子、廟宇木窗上的吉祥花樣：上色、剪紙、做卡片都好用</p>
+  </div>
+  <div class="actions">
+    <button class="ghost" onclick="regen(true)">🔀 換一組</button>
+    <button class="ghost" onclick="showIntro()">❓ 這是什麼</button>
+    <button class="teal" id="pptBtn" onclick="downloadPPT()">下載 PPT</button>
+    <button class="teal" id="pdfBtn" onclick="downloadPDF()">下載 PDF</button>
+    <button class="ghost" onclick="downloadSVG()">SVG</button>
+    <button class="primary" onclick="window.print()">列印</button>
+  </div>
+</header>
+
+<main>
+<aside id="aside">
+  <button class="ghost mobile-toggle" onclick="document.getElementById('aside').classList.toggle('collapsed')">⚙ 設定：窗櫺紋、窗形、呈現方式、文字（點我展開／收起）</button>
+  <div class="panel">
+
+  <div class="group">
+    <h3><span class="n">1</span>窗櫺紋</h3>
+    <div class="grid5" id="patGrid"></div>
+    <p class="hint" id="patHint"></p>
+  </div>
+
+  <div class="group">
+    <h3><span class="n">2</span>窗的形狀與版面</h3>
+    <div class="grid6" id="shapeGrid"></div>
+    <label class="row"><span class="k">一頁幾扇窗</span></label>
+    <div class="seg" id="laySeg"><button data-v="1" class="on">1 大窗</button><button data-v="2">2 扇門窗</button><button data-v="4">4 小窗</button><button data-v="6">6 張卡片</button></div>
+    <label class="check"><input type="checkbox" id="vary" checked>多扇窗時，每扇用不同花樣</label>
+  </div>
+
+  <div class="group">
+    <h3><span class="n">3</span>呈現方式</h3>
+    <div class="seg" id="modeSeg"><button data-v="color" class="on">木窗彩色</button><button data-v="line">線稿上色</button><button data-v="cut">剪紙版</button></div>
+    <p class="hint" id="modeHint"></p>
+    <div class="palrow" id="palGrid"></div>
+  </div>
+
+  <div class="group">
+    <h3><span class="n">4</span>木條與格子</h3>
+    <label class="row"><span class="k">格子大小</span><span id="cellV">中</span></label>
+    <input type="range" id="cell" min="1" max="5" value="3">
+    <label class="row"><span class="k">木條粗細</span><span id="barV">中</span></label>
+    <input type="range" id="bar" min="1" max="5" value="3">
+    <p class="hint">給長輩上色或剪紙，建議「格子大、木條粗」，每一塊比較好塗、好剪。</p>
+  </div>
+
+  <div class="group">
+    <h3><span class="n">5</span>中央圓光（放一個字）</h3>
+    <label class="check"><input type="checkbox" id="medal" checked>窗中央留一個圓，放一個吉祥字</label>
+    <input type="text" id="char" value="福" maxlength="2">
+    <div class="chars" id="charBtns"></div>
+  </div>
+
+  <div class="group">
+    <h3><span class="n">6</span>頁面文字</h3>
+    <label class="row"><span class="k">標題</span></label>
+    <input type="text" id="title" value="窗櫺紋" maxlength="20">
+    <label class="row"><span class="k">說明文字</span></label>
+    <input type="text" id="subtitle" value="" maxlength="60" placeholder="留空會依呈現方式自動顯示做法">
+    <label class="check"><input type="checkbox" id="nameLine" checked>顯示 姓名／日期 欄</label>
+    <label class="row"><span class="k">落款（頁尾）</span></label>
+    <input type="text" id="footer" value="愛迪樂健康促進團隊" maxlength="40">
+    <label class="row"><span class="k">產生張數</span><input type="number" id="count" min="1" max="20" value="1" style="width:80px"></label>
+  </div>
+
+  <div class="group">
+    <h3><span class="n">7</span>輸出說明</h3>
+    <p class="hint">「列印」直接出 A4；「下載 PDF」存檔分享；「下載 PPT」文字可編輯、窗圖可移動縮放；「SVG」可進 Canva、Illustrator 或割字機使用。冰裂紋每次都不一樣，按「換一組」重新產生。</p>
+  </div>
+  </div>
+</aside>
+
+<section class="preview">
+  <div class="intro" id="intro">
+    <div class="intro-head">
+      <h2>什麼是<span>窗櫺</span>？</h2>
+      <span class="tag2">老房子木窗上的吉祥花樣</span>
+      <button class="ghost sm" id="introToggle" onclick="toggleIntro()">收起介紹</button>
+    </div>
+    <div class="intro-body">
+      <p class="intro-lead">「窗櫺」（ㄌㄧㄥˊ）就是傳統木窗上縱橫交錯的木條。早年窗戶沒有玻璃，靠一格格木條撐住糊窗的紙，既能通風、透光，又能擋住外面的視線。工匠把這些木條拼成各式各樣的花樣，每一種都有吉祥的意思。在廟宇、老街、三合院和古厝裡，抬頭就能看到。</p>
+      <div class="samples" id="samples"></div>
+      <div class="intro-grid">
+        <div class="icard">
+          <h4><i style="background:var(--wood)">1</i>窗上的花樣在說什麼？</h4>
+          <div class="mean">
+            <b>冰裂紋</b><span>像冬天湖面裂開的冰，寓意寒冬將盡、春天要來；常配上梅花。</span>
+            <b>步步錦</b><span>木條一階一階排列，祝福步步高升。</span>
+            <b>龜背錦</b><span>像烏龜背殼的六角格，象徵長壽。</span>
+            <b>燈籠錦</b><span>中間像一盞燈籠，代表光明、喜氣。</span>
+            <b>回紋</b><span>線條迴旋不斷，寓意富貴綿延不斷頭。</span>
+            <b>方勝紋</b><span>方形與菱形交疊，象徵同心、吉祥。</span>
+          </div>
+        </div>
+        <div class="icard">
+          <h4><i style="background:var(--teal)">2</i>窗戶的形狀</h4>
+          <ul>
+            <li><b>方窗、長窗</b>：最常見，門扇上的格子窗也是窗櫺。</li>
+            <li><b>圓窗（月洞窗）</b>：像滿月一樣，常出現在庭園牆上。</li>
+            <li><b>八角窗、海棠窗、扇形窗</b>：廟宇和大戶人家裡較常見。</li>
+          </ul>
+          <p style="margin-top:8px">這個生成器可以把任何一種花樣，放進任何一種窗形裡，也能在中央放一個「福」「壽」「春」等吉祥字。</p>
+        </div>
+        <div class="icard">
+          <h4><i style="background:var(--amber);color:var(--ink)">3</i>為什麼做這個生成器？</h4>
+          <p>窗櫺是許多長輩熟悉的老房子記憶，一看到就能聊起「以前阿公家的窗」「廟口的雕花門」。它的花樣規律又整齊，很適合拿來上色、剪紙。</p>
+          <ul>
+            <li><b>木窗彩色</b>：投影或印出來，先欣賞、先聊天</li>
+            <li><b>線稿上色</b>：每一格都可以塗不同顏色，像彩繪玻璃</li>
+            <li><b>剪紙版</b>：剪掉白色的格子，就是一扇鏤空的窗花</li>
+          </ul>
+        </div>
+      </div>
+      <div class="steps">
+        <div class="step"><b>帶活動小提示 ①</b>先看木窗彩色版，問大家：「你在哪裡看過這種窗？家裡以前的窗長什麼樣子？」</div>
+        <div class="step"><b>帶活動小提示 ②</b>一起找規律：「這扇窗的格子，是一樣的形狀一直重複嗎？」再挑喜歡的花樣上色或剪紙。</div>
+        <div class="step"><b>帶活動小提示 ③</b>完成後貼在窗戶或燈罩上，光從格子透出來，就是自己做的窗花。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scalebar">
+    <span>預覽縮放</span><input type="range" id="zoom" min="25" max="100" value="60"><span id="zoomVal">60%</span>
+    <span style="margin-left:auto" id="pageInfo"></span>
+  </div>
+  <div class="pages" id="pages"></div>
+</section>
+</main>
+<footer class="site">窗櫺紋紙本生成器 · 自由列印使用於社區、教室、居家活動</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- 工具 ---------- */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;}}
+const $=id=>document.getElementById(id);
+const F=n=>(+n).toFixed(2);
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
+const FONT=`font-family="Microsoft JhengHei, PingFang TC, Noto Sans TC, sans-serif"`;
+const M=(x,y)=>`M${F(x)} ${F(y)}`,L=(x,y)=>`L${F(x)} ${F(y)}`;
+
+/* ---------- 冰裂紋：把多邊形隨機切開 ---------- */
+function area(p){let a=0;for(let i=0;i<p.length;i++){const q=p[(i+1)%p.length];a+=p[i][0]*q[1]-q[0]*p[i][1];}return Math.abs(a)/2;}
+function centroid(p){let x=0,y=0;p.forEach(q=>{x+=q[0];y+=q[1];});return [x/p.length,y/p.length];}
+function splitPoly(p,pt,ang){const dx=Math.cos(ang),dy=Math.sin(ang);const side=q=>(q[0]-pt[0])*dy-(q[1]-pt[1])*dx;const A=[],B=[];
+  for(let i=0;i<p.length;i++){const a=p[i],b=p[(i+1)%p.length];const sa=side(a),sb=side(b);(sa>=0?A:B).push(a);
+    if((sa>=0)!==(sb>=0)){const t=sa/(sa-sb);const m=[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t];A.push(m);B.push(m);}}
+  return [A,B];}
+function iceCrack(x,y,w,h,s,rng){
+  const target=s*s*1.1;let polys=[[[x,y],[x+w,y],[x+w,y+h],[x,y+h]]];const done=[];let guard=0;
+  while(polys.length&&guard++<4000){const p=polys.pop();if(area(p)<target||p.length<3){done.push(p);continue;}
+    let minx=1e9,maxx=-1e9,miny=1e9,maxy=-1e9;p.forEach(q=>{minx=Math.min(minx,q[0]);maxx=Math.max(maxx,q[0]);miny=Math.min(miny,q[1]);maxy=Math.max(maxy,q[1]);});
+    const c=centroid(p);const pt=[c[0]+(rng()-.5)*(maxx-minx)*.3,c[1]+(rng()-.5)*(maxy-miny)*.3];
+    const base=(maxx-minx)>(maxy-miny)?Math.PI/2:0;const ang=base+(rng()-.5)*1.3;
+    const [A,B]=splitPoly(p,pt,ang);if(A.length<3||B.length<3||area(A)<target*.18||area(B)<target*.18){done.push(p);continue;}polys.push(A,B);}
+  return done.concat(polys);
+}
+
+/* ---------- 窗櫺紋（回傳木條中心線 path） ---------- */
+const PATS=[
+ {id:'ice',name:'冰裂紋',hint:'像冬天湖面裂開的冰，每次產生都不一樣。',f:(x,y,w,h,s,rng,out)=>{const ps=iceCrack(x,y,w,h,s*1.25,rng);out.polys=ps;return ps.map(p=>M(...p[0])+p.slice(1).map(q=>L(...q)).join('')+'Z').join('');}},
+ {id:'iceplum',name:'冰裂梅花',hint:'冰裂紋上開著梅花：冬去春來、苦盡甘來。',f:(x,y,w,h,s,rng,out)=>{const d=PATS[0].f(x,y,w,h,s,rng,out);out.plum=true;return d;}},
+ {id:'step',name:'步步錦',hint:'木條一橫一豎交替排列，祝福步步高升。',f:(x,y,w,h,s)=>{let d='';const nx=Math.ceil(w/s)+1,ny=Math.ceil(h/s)+1;
+   for(let i=0;i<=nx;i++)d+=M(x+i*s,y)+L(x+i*s,y+h);for(let j=0;j<=ny;j++)d+=M(x,y+j*s)+L(x+w,y+j*s);
+   for(let i=0;i<nx;i++)for(let j=0;j<ny;j++){const cx=x+i*s,cy=y+j*s;if((i+j)%2===0)d+=M(cx,cy+s/2)+L(cx+s*.62,cy+s/2);else d+=M(cx+s/2,cy+s)+L(cx+s/2,cy+s*.38);}return d;}},
+ {id:'turtle',name:'龜背錦',hint:'像烏龜背上的六角格，象徵長壽。',f:(x,y,w,h,s)=>{const a=s*.62,hx=1.5*a,vy=Math.sqrt(3)*a;let d='';
+   for(let i=-1;i*hx<w+a;i++)for(let j=-1;j*vy<h+vy;j++){const cx=x+i*hx,cy=y+j*vy+(i%2?vy/2:0);const pts=[];for(let k=0;k<6;k++){const t=k*Math.PI/3;pts.push([cx+a*Math.cos(t),cy+a*Math.sin(t)]);}d+=M(...pts[0])+pts.slice(1).map(q=>L(...q)).join('')+'Z';}return d;}},
+ {id:'octa',name:'八角錦',hint:'八角形和小方塊交錯，四平八穩。',f:(x,y,w,h,s)=>{const S=s*1.25,k=S*.29;let d='';
+   for(let i=-1;i*S<w+S;i++)for(let j=-1;j*S<h+S;j++){const X=x+i*S,Y=y+j*S;d+=M(X+k,Y)+L(X+S-k,Y)+L(X+S,Y+k)+L(X+S,Y+S-k)+L(X+S-k,Y+S)+L(X+k,Y+S)+L(X,Y+S-k)+L(X,Y+k)+'Z';}return d;}},
+ {id:'lantern',name:'燈籠錦',hint:'每一格中間像一盞燈籠，代表光明喜氣。',f:(x,y,w,h,s)=>{const tw=s*1.7,th=s*2.1;let d='';
+   for(let i=0;i*tw<w+tw;i++)for(let j=0;j*th<h+th;j++){const X=x+i*tw,Y=y+j*th;const ix=tw*.22,iy=th*.22;
+     d+=M(X,Y)+L(X+tw,Y)+M(X,Y)+L(X,Y+th);d+=M(X+ix,Y+iy)+L(X+tw-ix,Y+iy)+L(X+tw-ix,Y+th-iy)+L(X+ix,Y+th-iy)+'Z';
+     d+=M(X+tw/2,Y)+L(X+tw/2,Y+iy)+M(X+tw/2,Y+th-iy)+L(X+tw/2,Y+th)+M(X,Y+th/2)+L(X+ix,Y+th/2)+M(X+tw-ix,Y+th/2)+L(X+tw,Y+th/2);}return d;}},
+ {id:'meander',name:'回紋',hint:'線條迴旋不斷，寓意富貴綿延。',f:(x,y,w,h,s)=>{const S=s*1.4,u=S/5;let d='';
+   for(let i=0;i*S<w+S;i++)for(let j=0;j*S<h+S;j++){const X=x+i*S,Y=y+j*S;d+=M(X,Y)+L(X+S,Y)+M(X,Y)+L(X,Y+S);
+     d+=M(X+u,Y+S-u)+L(X+S-u,Y+S-u)+L(X+S-u,Y+u)+L(X+u,Y+u)+L(X+u,Y+S-2*u)+L(X+S-2*u,Y+S-2*u)+L(X+S-2*u,Y+2*u)+L(X+2*u,Y+2*u)+L(X+2*u,Y+S-2.6*u);}return d;}},
+ {id:'fangsheng',name:'方勝紋',hint:'方格和菱形交疊，象徵同心吉祥。',f:(x,y,w,h,s)=>{const S=s*1.3;let d='';
+   for(let i=0;i*S<=w+S;i++)d+=M(x+i*S,y)+L(x+i*S,y+h);for(let j=0;j*S<=h+S;j++)d+=M(x,y+j*S)+L(x+w,y+j*S);
+   for(let i=0;i*S<w+S;i++)for(let j=0;j*S<h+S;j++){const X=x+i*S,Y=y+j*S;d+=M(X+S/2,Y)+L(X+S,Y+S/2)+L(X+S/2,Y+S)+L(X,Y+S/2)+'Z';}return d;}},
+ {id:'bars',name:'直櫺窗',hint:'一根根直木條，最樸素的老窗。',f:(x,y,w,h,s)=>{let d='';const S=s*.8;for(let i=0;i*S<=w+S;i++)d+=M(x+i*S,y)+L(x+i*S,y+h);[.25,.5,.75].forEach(t=>d+=M(x,y+h*t)+L(x+w,y+h*t));return d;}},
+ {id:'grid',name:'方格窗',hint:'橫豎交叉的方格，最常見的格子窗。',f:(x,y,w,h,s)=>{let d='';for(let i=0;i*s<=w+s;i++)d+=M(x+i*s,y)+L(x+i*s,y+h);for(let j=0;j*s<=h+s;j++)d+=M(x,y+j*s)+L(x+w,y+j*s);return d;}},
+];
+
+/* ---------- 窗形 ---------- */
+function polarPath(cx,cy,rx,ry,fn,n=120){let d='';for(let i=0;i<n;i++){const t=i/n*Math.PI*2;const r=fn(t);d+=(i?L:M)(cx+rx*r*Math.cos(t),cy+ry*r*Math.sin(t));}return d+'Z';}
+const SHAPES=[
+ {id:'rect',name:'方窗',d:(x,y,w,h)=>M(x,y)+L(x+w,y)+L(x+w,y+h)+L(x,y+h)+'Z'},
+ {id:'round',name:'圓窗',d:(x,y,w,h)=>polarPath(x+w/2,y+h/2,w/2,h/2,()=>1)},
+ {id:'octagon',name:'八角窗',d:(x,y,w,h)=>{const k=.29;return M(x+w*k,y)+L(x+w*(1-k),y)+L(x+w,y+h*k)+L(x+w,y+h*(1-k))+L(x+w*(1-k),y+h)+L(x+w*k,y+h)+L(x,y+h*(1-k))+L(x,y+h*k)+'Z';}},
+ {id:'haitang',name:'海棠窗',d:(x,y,w,h)=>polarPath(x+w/2,y+h/2,w/2,h/2,t=>.8+.2*Math.pow(Math.abs(Math.cos(2*t)),.55),200)},
+ {id:'arch',name:'拱門窗',d:(x,y,w,h)=>{const r=w/2;return M(x,y+h)+L(x,y+r)+`A${F(r)} ${F(r)} 0 0 1 ${F(x+w)} ${F(y+r)}`+L(x+w,y+h)+'Z';}},
+ {id:'fan',name:'扇形窗',geo:(x,y,w,h)=>{const a=Math.PI/3,R=Math.min(w/2/Math.sin(a),h/(1-.36*Math.cos(a))),r=R*.36,hh=R-r*Math.cos(a);return{a,R,r,cx:x+w/2,cy:y+(h-hh)/2+R};},
+   d:(x,y,w,h,ins=0)=>{const g=SHAPES[5].geo(x,y,w,h);const R=g.R-ins,r=g.r+ins,a=g.a-ins/((g.R+g.r)/2);const pts=[];
+   for(let i=0;i<=60;i++){const t=-a+2*a*i/60;pts.push([g.cx+R*Math.sin(t),g.cy-R*Math.cos(t)]);}for(let i=0;i<=30;i++){const t=a-2*a*i/30;pts.push([g.cx+r*Math.sin(t),g.cy-r*Math.cos(t)]);}
+   return M(...pts[0])+pts.slice(1).map(q=>L(...q)).join('')+'Z';},
+   center:(x,y,w,h)=>{const g=SHAPES[5].geo(x,y,w,h);return[g.cx,g.cy-(g.R+g.r)/2,(g.R-g.r)*.5];}},
+];
+const SHAPE_ICON={rect:'<rect x="6" y="5" width="20" height="22" rx="1"/>',round:'<circle cx="16" cy="16" r="11"/>',octagon:'<path d="M12 5H20L27 12V20L20 27H12L5 20V12Z"/>',
+ haitang:'<path d="M16 4C21 4 22 9 28 10C28 16 23 16 23 16C23 16 28 17 28 22C22 23 21 28 16 28C11 28 10 23 4 22C4 16 9 16 9 16C9 16 4 16 4 10C10 9 11 4 16 4Z"/>',arch:'<path d="M6 28V14A10 10 0 0 1 26 14V28Z"/>',fan:'<path d="M3 13A16 16 0 0 1 29 13L21 22A7 7 0 0 0 11 22Z"/>'};
+
+/* ---------- 配色（木窗彩色） ---------- */
+const PALS=[
+ {name:'原木',wood:'#6B3E1D',hi:'#B07A45',frame:'#4E2C14',paper:'#F6ECD6'},
+ {name:'朱紅廟窗',wood:'#9E1B1B',hi:'#E0704F',frame:'#6E1010',paper:'#FBF0D9'},
+ {name:'墨綠',wood:'#1F4D3A',hi:'#5C9A7A',frame:'#143326',paper:'#F2EFE2'},
+ {name:'黑檀',wood:'#2A2320',hi:'#6B5A50',frame:'#17120F',paper:'#EFE8DA'},
+ {name:'天光',wood:'#6B3E1D',hi:'#B07A45',frame:'#4E2C14',paper:'#DCEBF5'},
+];
+
+/* ---------- 畫一扇窗 ---------- */
+function windowSvg(x,y,w,h,patId,seed,o,uid){
+  const sh=SHAPES.find(s=>s.id===o.shape);const pat=PATS.find(p=>p.id===patId);const rng=mulberry32(seed);
+  const fr=Math.max(3,Math.min(w,h)*.045);const ix=x+fr,iy=y+fr,iw=w-2*fr,ih=h-2*fr;
+  const outer=sh.d(x,y,w,h),inner=sh.geo?sh.d(x,y,w,h,fr):sh.d(ix,iy,iw,ih);const pal=o.pal;const bw=o.bw,lw=.35;
+  const extra={};const lat=pat.f(ix-bw,iy-bw,iw+2*bw,ih+2*bw,o.s,rng,extra);
+  let s=`<defs><clipPath id="${uid}"><path d="${inner}"/></clipPath></defs>`;
+  const barDraw=(d,cap='square')=>o.mode==='color'?`<path d="${d}" fill="none" stroke="${pal.wood}" stroke-width="${F(bw)}" stroke-linecap="${cap}" stroke-linejoin="miter"/><path d="${d}" fill="none" stroke="${pal.hi}" stroke-width="${F(bw*.3)}" stroke-linecap="${cap}" opacity=".55"/>`
+    :o.mode==='line'?`<path d="${d}" fill="none" stroke="#222" stroke-width="${F(bw)}" stroke-linecap="${cap}" stroke-linejoin="miter"/><path d="${d}" fill="none" stroke="#fff" stroke-width="${F(Math.max(.2,bw-2*lw))}" stroke-linecap="${cap}" stroke-linejoin="miter"/>`
+    :`<path d="${d}" fill="none" stroke="#C1121F" stroke-width="${F(bw)}" stroke-linecap="${cap}" stroke-linejoin="miter"/>`;
+  const shapeFill=(d,fill)=>o.mode==='color'?`<path d="${d}" fill="${fill}" stroke="${pal.wood}" stroke-width="${F(bw*.55)}"/>`:o.mode==='line'?`<path d="${d}" fill="#fff" stroke="#222" stroke-width="${F(lw*1.6)}"/>`:`<path d="${d}" fill="#C1121F"/>`;
+  // 外框
+  if(o.mode==='color')s+=`<path d="${outer}" fill="${pal.frame}"/><path d="${inner}" fill="${pal.paper}" stroke="${pal.hi}" stroke-width=".5"/>`;
+  else if(o.mode==='line')s+=`<path d="${outer}" fill="#fff" stroke="#222" stroke-width="${F(lw*2)}"/><path d="${inner}" fill="#fff" stroke="#222" stroke-width="${F(lw*2)}"/>`;
+  else s+=`<path d="${outer}" fill="#C1121F"/><path d="${inner}" fill="#fff"/>`;
+  s+=`<g clip-path="url(#${uid})">${barDraw(lat)}`;
+  if(extra.plum&&extra.polys){const pr=o.s*.42;extra.polys.forEach((p,i)=>{if(rng()>.28)return;const c=centroid(p);let pd='';
+    for(let k=0;k<5;k++){const t=k/5*Math.PI*2-Math.PI/2;pd+=polarPath(c[0]+Math.cos(t)*pr*.55,c[1]+Math.sin(t)*pr*.55,pr*.48,pr*.48,()=>1,24);}
+    s+=shapeFill(pd,'#F4B6C2')+(o.mode==='cut'?`<circle cx="${F(c[0])}" cy="${F(c[1])}" r="${F(pr*.22)}" fill="#fff"/>`:`<circle cx="${F(c[0])}" cy="${F(c[1])}" r="${F(pr*.22)}" fill="${o.mode==='color'?'#F6C543':'#fff'}" stroke="${o.mode==='color'?pal.wood:'#222'}" stroke-width="${F(o.mode==='color'?.3:lw)}"/>`);});}
+  if(o.medal&&o.ch){let r=Math.min(iw,ih)*.17,cx=ix+iw/2,cy=iy+ih/2;if(sh.center){const c=sh.center(x,y,w,h);cx=c[0];cy=c[1];r=Math.min(r,c[2]*.5);}const ring=polarPath(cx,cy,r,r,()=>1,72);const ring2=polarPath(cx,cy,r+bw*.9,r+bw*.9,()=>1,72);
+    if(o.mode==='color')s+=`<path d="${ring2}" fill="${pal.wood}"/><path d="${ring}" fill="${pal.paper}" stroke="${pal.hi}" stroke-width=".5"/>`;
+    else if(o.mode==='line')s+=`<path d="${ring2}" fill="#fff" stroke="#222" stroke-width="${F(lw*2)}"/><path d="${ring}" fill="#fff" stroke="#222" stroke-width="${F(lw*2)}"/>`;
+    else s+=`<path d="${ring2}" fill="#C1121F"/><path d="${ring}" fill="#fff"/>`;
+    const fs=r*(o.ch.length>1?.78:1.25);const tf=o.mode==='color'?`fill="${pal.wood==='#2A2320'?'#9E1B1B':pal.wood}"`:o.mode==='line'?`fill="#fff" stroke="#222" stroke-width="${F(lw*1.4)}"`:`fill="#C1121F"`;
+    s+=`<text x="${F(cx)}" y="${F(cy+fs*.36)}" text-anchor="middle" font-size="${F(fs)}" font-weight="900" ${tf} ${FONT}>${esc(o.ch)}</text>`;}
+  s+='</g>';
+  if(o.mode==='color')s+=`<path d="${inner}" fill="none" stroke="${pal.frame}" stroke-width="${F(bw*.6)}"/><path d="${outer}" fill="none" stroke="#2b1a0c" stroke-width=".5"/>`;
+  else if(o.mode==='cut')s+=`<path d="${outer}" fill="none" stroke="#7a0b12" stroke-width=".35"/>`;
+  return s;
+}
+
+/* ---------- 版面 ---------- */
+function slots(n,nameLine){const top=nameLine?46:38,bot=279;const W=176,X=17;const H=bot-top;
+  if(n===1){const sz=Math.min(W,H-6);return [[105-sz/2,top+(H-sz)/2,sz,sz]];}
+  if(n===2){const w=84,h=H-6;return [[X,top+3,w,h],[X+W-w,top+3,w,h]];}
+  if(n===4){const w=84,h=(H-10)/2;const s=Math.min(w,h);return [0,1,2,3].map(i=>{const c=i%2,r=Math.floor(i/2);return [X+c*(W-w)+(w-s)/2,top+r*(h+10)+(h-s)/2,s,s];});}
+  const w=84,h=(H-16)/3;return [0,1,2,3,4,5].map(i=>{const c=i%2,r=Math.floor(i/2);return [X+c*(W-w),top+r*(h+8),w,h];});}
+const MODE_SUB={color:'欣賞老窗的花樣：找一找，哪些形狀一直重複出現？',line:'把每一個格子塗上喜歡的顏色，就像一扇彩繪玻璃窗。',cut:'剪掉白色的格子，留下紅色的木條，就是一扇鏤空窗花。'};
+
+/* ---------- 狀態 ---------- */
+const state={pat:'ice',shape:'round',lay:1,mode:'color',pal:0,seed:Date.now()%100000};
+const pagesData=[];
+function cfg(){return{s:[0,9,11.5,14,17.5,22][+$('cell').value],bw:[0,1.4,1.9,2.5,3.2,4][+$('bar').value],shape:state.shape,mode:state.mode,pal:PALS[state.pal],medal:$('medal').checked,ch:$('char').value.trim(),
+  vary:$('vary').checked,title:$('title').value||'窗櫺紋',subtitle:$('subtitle').value.trim()||MODE_SUB[state.mode],nameLine:$('nameLine').checked,footer:$('footer').value,count:Math.min(20,Math.max(1,+$('count').value||1))};}
+function pageSvg(c,idx,total,art){
+  const W=210;
+  let head=`<text x="${W/2}" y="20" text-anchor="middle" font-size="10" font-weight="700" fill="#12343B" ${FONT}>${esc(c.title)}</text>`;
+  head+=`<text x="${W/2}" y="27.5" text-anchor="middle" font-size="4.2" fill="#7A7068" ${FONT}>${esc(c.subtitle)}</text>`;
+  if(c.nameLine){head+=`<text x="22" y="37" font-size="4.2" fill="#12343B" ${FONT}>姓名：</text><line x1="33" y1="38" x2="95" y2="38" stroke="#B9B0A3" stroke-width=".4"/><text x="118" y="37" font-size="4.2" fill="#12343B" ${FONT}>日期：</text><line x1="129" y1="38" x2="188" y2="38" stroke="#B9B0A3" stroke-width=".4"/>`;}
+  const foot=`<text x="${W/2}" y="289" text-anchor="middle" font-size="3.4" fill="#9A918A" ${FONT}>${esc(c.footer)}${total>1?`　·　第 ${idx} 張 / 共 ${total} 張`:''}</text><line x1="22" y1="283" x2="188" y2="283" stroke="#EFE6D8" stroke-width=".4"/>`;
+  const corner=`<path d="M12 22 V12 H22 M188 12 H198 V22 M198 275 V285 H188 M22 285 H12 V275" fill="none" stroke="#F4A93C" stroke-width=".8" stroke-linecap="round"/>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 297" width="210mm" height="297mm"><rect width="210" height="297" fill="#fff"/>${corner}${head}${art}${foot}</svg>`;
+}
+function artFor(c,pageIdx){
+  const sl=slots(state.lay,c.nameLine);const pi=PATS.findIndex(p=>p.id===state.pat);let art='';
+  sl.forEach(([x,y,w,h],i)=>{const pid=(c.vary&&sl.length>1)?PATS[(pi+i+pageIdx*sl.length)%PATS.length].id:state.pat;
+    const small=sl.length>=4;const o={...c,s:small?c.s*.72:c.s,bw:small?Math.max(1.2,c.bw*.8):c.bw};
+    art+=windowSvg(x,y,w,h,pid,state.seed+pageIdx*97+i*13,o,`cw${state.seed}_${pageIdx}_${i}`);
+    if(sl.length>1)art+=`<text x="${F(x+w/2)}" y="${F(y+h+(state.lay===6?4.6:5.2))}" text-anchor="middle" font-size="3.4" fill="#9A918A" ${FONT}>${PATS.find(p=>p.id===pid).name}</text>`;});
+  return art;
+}
+function regen(newSeed){
+  if(newSeed)state.seed=Math.floor(Math.random()*1e6);
+  const c=cfg();pagesData.length=0;
+  for(let i=0;i<c.count;i++){const art=artFor(c,i);pagesData.push({svg:pageSvg(c,i+1,c.count,art),art,idx:i+1});}
+  const box=$('pages');box.innerHTML='';
+  pagesData.forEach(p=>{const w=document.createElement('div');w.className='pagewrap';w.innerHTML=`<span class="tag">第 ${p.idx} 張</span><div class="page">${p.svg}</div>`;box.appendChild(w);});
+  $('pageInfo').textContent=`共 ${pagesData.length} 頁`;$('patHint').textContent=PATS.find(p=>p.id===state.pat).hint;
+  $('modeHint').textContent={color:'木窗彩色：可選木頭顏色，適合投影欣賞或直接剪貼。',line:'線稿：木條是雙線，格子是白的，可以塗木條，也可以把格子塗成彩繪玻璃。',cut:'剪紙版：紅色是要留下的木條，白色格子剪掉；建議木條調粗一點比較好剪。'}[state.mode];
+  $('palGrid').style.display=state.mode==='color'?'grid':'none';
+  $('cellV').textContent=['','很小','小','中','大','很大'][+$('cell').value];$('barV').textContent=['','細','偏細','中','粗','很粗'][+$('bar').value];
+  applyZoom();
+}
+function applyZoom(){const z=+$('zoom').value/100;$('zoomVal').textContent=Math.round(z*100)+'%';
+  document.querySelectorAll('.pagewrap').forEach(w=>{const p=w.querySelector('.page');p.style.transform=`scale(${z})`;w.style.width=(210*z*3.7795)+'px';w.style.height=(297*z*3.7795)+'px';});}
+
+/* ---------- 選單 ---------- */
+function miniWindow(patId,shape,mode,palI,size,seed,medal){const o={...cfg(),shape,mode,pal:PALS[palI],s:size>=100?13:8.5,bw:size>=100?2.4:1.6,medal:!!medal,ch:'福'};
+  return `<svg viewBox="-2 -2 ${size+4} ${size+4}">${windowSvg(0,0,size,size,patId,seed,o,'mw'+patId+shape+mode+seed)}</svg>`;}
+function initMenus(){
+  const pg=$('patGrid');PATS.forEach(p=>{const b=document.createElement('button');b.className='pbtn'+(p.id===state.pat?' active':'');b.dataset.id=p.id;b.innerHTML=miniWindow(p.id,'rect','color',0,60,7,false)+`<span>${p.name}</span>`;
+    b.onclick=()=>{state.pat=p.id;document.querySelectorAll('.pbtn').forEach(x=>x.classList.toggle('active',x.dataset.id===p.id));regen();};pg.appendChild(b);});
+  const sg=$('shapeGrid');SHAPES.forEach(s=>{const b=document.createElement('button');b.className='sbtn'+(s.id===state.shape?' active':'');b.dataset.id=s.id;
+    b.innerHTML=`<svg viewBox="0 0 32 32" fill="#F3E6D8" stroke="#6B3E1D" stroke-width="2">${SHAPE_ICON[s.id]}</svg><span>${s.name}</span>`;
+    b.onclick=()=>{state.shape=s.id;document.querySelectorAll('.sbtn').forEach(x=>x.classList.toggle('active',x.dataset.id===s.id));regen();};sg.appendChild(b);});
+  const pl=$('palGrid');PALS.forEach((p,i)=>{const b=document.createElement('button');b.className='palbtn'+(i===state.pal?' active':'');b.innerHTML=`<i style="background:${p.paper};border-color:${p.wood}"></i><span>${p.name}</span>`;
+    b.onclick=()=>{state.pal=i;document.querySelectorAll('.palbtn').forEach((x,k)=>x.classList.toggle('active',k===i));regen();};pl.appendChild(b);});
+  $('charBtns').innerHTML=['福','壽','春','喜','安'].map(ch=>`<button class="ghost" onclick="$('char').value='${ch}';$('medal').checked=true;regen()">${ch}</button>`).join('');
+  $('samples').innerHTML=[['ice','round',0,'冰裂紋・圓窗'],['step','rect',1,'步步錦・方窗'],['turtle','octagon',2,'龜背錦・八角窗'],['lantern','haitang',0,'燈籠錦・海棠窗']].map(([p,s,pi,n],i)=>`<div class="sample">${miniWindow(p,s,'color',pi,140,30+i,i===0)}<span>${n}</span></div>`).join('');
+}
+
+/* ---------- 介紹區 ---------- */
+function setIntro(open){$('intro').classList.toggle('mini',!open);$('introToggle').textContent=open?'收起介紹':'展開介紹：什麼是窗櫺？';try{localStorage.setItem('lattice-intro',open?'1':'0');}catch(e){}}
+function toggleIntro(){setIntro($('intro').classList.contains('mini'));}
+function showIntro(){setIntro(true);$('intro').scrollIntoView({behavior:'smooth',block:'start'});}
+
+/* ---------- 輸出 ---------- */
+function downloadSVG(){const p=pagesData[0];if(!p)return;const blob=new Blob([p.svg],{type:'image/svg+xml'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`窗櫺紋_${PATS.find(x=>x.id===state.pat).name}.svg`;a.click();toast('已下載第 1 張 SVG');}
+function svgToCanvas(svg,wmm,hmm,scale){return new Promise((res,rej)=>{const img=new Image();const url=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml;charset=utf-8'}));img.onload=()=>{const cv=document.createElement('canvas');cv.width=Math.round(wmm*scale);cv.height=Math.round(hmm*scale);const ctx=cv.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);ctx.drawImage(img,0,0,cv.width,cv.height);URL.revokeObjectURL(url);res(cv);};img.onerror=rej;img.src=url;});}
+async function downloadPDF(){const btn=$('pdfBtn');btn.disabled=true;btn.textContent='產生中…';
+  try{const {jsPDF}=window.jspdf;const pdf=new jsPDF({unit:'mm',format:'a4',compress:true});
+    for(let i=0;i<pagesData.length;i++){if(i)pdf.addPage();const cv=await svgToCanvas(pagesData[i].svg,210,297,8);pdf.addImage(cv.toDataURL('image/jpeg',0.92),'JPEG',0,0,210,297);}
+    pdf.save(`窗櫺紋_${pagesData.length}頁.pdf`);toast('PDF 已下載');}
+  catch(e){console.error(e);toast('PDF 產生失敗，請改用「列印」→ 另存為 PDF');}
+  btn.disabled=false;btn.textContent='下載 PDF';}
+function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=()=>rej(new Error('load fail'));document.head.appendChild(s);});}
+async function ensurePptx(){if(window.PptxGenJS)return;for(const u of ['https://cdn.jsdelivr.net/npm/pptxgenjs@4.0.1/dist/pptxgen.bundle.js','https://unpkg.com/pptxgenjs@4.0.1/dist/pptxgen.bundle.js']){try{await loadScript(u);if(window.PptxGenJS)return;}catch(e){}}throw new Error('PptxGenJS 無法載入');}
+async function downloadPPT(){const btn=$('pptBtn');btn.disabled=true;btn.textContent='產生中…';
+  try{await ensurePptx();const c=cfg();const pptx=new PptxGenJS();pptx.defineLayout({name:'A4P',width:8.27,height:11.69});pptx.layout='A4P';
+    const IN=1/25.4,font='Microsoft JhengHei';const y0=c.nameLine?41:33,h=281-y0;
+    for(const p of pagesData){const s=pptx.addSlide();
+      const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 ${y0} 210 ${h}" width="210mm" height="${h}mm"><rect x="0" y="${y0}" width="210" height="${h}" fill="#fff"/>${p.art}</svg>`;
+      const cv=await svgToCanvas(svg,210,h,8);
+      s.addText(c.title,{x:0.6,y:0.35,w:7.07,h:0.6,align:'center',fontFace:font,fontSize:28,bold:true,color:'12343B'});
+      s.addText(c.subtitle,{x:0.4,y:0.95,w:7.47,h:0.35,align:'center',fontFace:font,fontSize:12,color:'7A7068'});
+      if(c.nameLine){s.addText('姓名：',{x:22*IN,y:1.3,w:0.7,h:0.3,fontFace:font,fontSize:12,color:'12343B'});s.addShape(pptx.ShapeType.line,{x:33*IN,y:1.58,w:62*IN,h:0,line:{color:'B9B0A3',width:0.75}});s.addText('日期：',{x:118*IN,y:1.3,w:0.7,h:0.3,fontFace:font,fontSize:12,color:'12343B'});s.addShape(pptx.ShapeType.line,{x:129*IN,y:1.58,w:59*IN,h:0,line:{color:'B9B0A3',width:0.75}});}
+      s.addImage({data:cv.toDataURL('image/png'),x:0,y:y0*IN,w:210*IN,h:h*IN});
+      s.addText(c.footer+(c.count>1?`　·　第 ${p.idx} 張 / 共 ${c.count} 張`:''),{x:0.6,y:284*IN,w:7.07,h:0.3,align:'center',fontFace:font,fontSize:9,color:'9A918A'});}
+    await pptx.writeFile({fileName:`窗櫺紋_${pagesData.length}頁.pptx`});toast('PPT 已下載：文字可直接修改，窗圖可移動縮放');}
+  catch(e){console.error(e);toast('PPT 產生失敗，請確認網路連線後再試');}
+  btn.disabled=false;btn.textContent='下載 PPT';}
+
+/* ---------- 綁定 ---------- */
+initMenus();
+function seg(id,fn){document.querySelectorAll('#'+id+' button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#'+id+' button').forEach(x=>x.classList.toggle('on',x===b));fn(b.dataset.v);});}
+seg('laySeg',v=>{state.lay=+v;regen();});
+seg('modeSeg',v=>{state.mode=v;if(v==='cut'&&+$('bar').value<4){$('bar').value=4;}regen();});
+['cell','bar','medal','char','vary','title','subtitle','nameLine','footer','count'].forEach(id=>$(id).addEventListener('input',()=>regen()));
+$('zoom').addEventListener('input',applyZoom);
+if(window.innerWidth<900){$('zoom').value=Math.min(60,Math.floor((window.innerWidth-50)/(210*3.7795)*100));$('aside').classList.add('collapsed');}
+try{if(localStorage.getItem('lattice-intro')==='0')setIntro(false);}catch(e){}
+regen();
+</script>
+</body>
+</html>
