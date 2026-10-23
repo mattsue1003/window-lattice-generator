@@ -116,7 +116,7 @@ footer.site{padding:18px;text-align:center;font-size:12px;color:var(--muted);}
   <div class="logo">窗</div>
   <div>
     <h1>窗櫺紋紙本生成器</h1>
-    <p>老房子、廟宇木窗上的吉祥花樣：上色、剪紙、做卡片都好用</p>
+    <p>廟宇、古厝木窗上的吉祥花樣：上色、剪紙、做卡片都好用</p>
   </div>
   <div class="actions">
     <button class="ghost" onclick="regen(true)">🔀 換一組</button>
@@ -193,17 +193,17 @@ footer.site{padding:18px;text-align:center;font-size:12px;color:var(--muted);}
   <div class="intro" id="intro">
     <div class="intro-head">
       <h2>什麼是<span>窗櫺</span>？</h2>
-      <span class="tag2">老房子木窗上的吉祥花樣</span>
+      <span class="tag2">廟宇、古厝木窗上的吉祥花樣</span>
       <button class="ghost sm" id="introToggle" onclick="toggleIntro()">收起介紹</button>
     </div>
     <div class="intro-body">
-      <p class="intro-lead">「窗櫺」（ㄌㄧㄥˊ）就是傳統木窗上縱橫交錯的木條。早年窗戶沒有玻璃，靠一格格木條撐住糊窗的紙，既能通風、透光，又能擋住外面的視線。工匠把這些木條拼成各式各樣的花樣，每一種都有吉祥的意思。在廟宇、老街、三合院和古厝裡，抬頭就能看到。</p>
+      <p class="intro-lead">「窗櫺」（ㄌㄧㄥˊ）就是傳統木窗上縱橫交錯的木條，能通風、透光，又能擋住外面的視線。工匠把這些木條拼成各式各樣的花樣，每一種都有吉祥的意思。下次去廟裡拜拜，抬頭看看前殿門邊的木窗就能找到；臺南孔廟、赤崁樓、板橋林家花園，還有各地的古厝、三合院也看得到。後來家家戶戶裝的鐵窗花，很多也延續了這些吉祥圖案。</p>
       <div class="samples" id="samples"></div>
       <div class="intro-grid">
         <div class="icard">
           <h4><i style="background:var(--wood)">1</i>窗上的花樣在說什麼？</h4>
           <div class="mean">
-            <b>冰裂紋</b><span>像冬天湖面裂開的冰，寓意寒冬將盡、春天要來；常配上梅花。</span>
+            <b>冰裂紋</b><span>像冰面裂開的紋路，象徵冰清玉潔；配上梅花，寓意寒冬將盡、春天要來。</span>
             <b>步步錦</b><span>木條一階一階排列，祝福步步高升。</span>
             <b>龜背錦</b><span>像烏龜背殼的六角格，象徵長壽。</span>
             <b>燈籠錦</b><span>中間像一盞燈籠，代表光明、喜氣。</span>
@@ -222,7 +222,7 @@ footer.site{padding:18px;text-align:center;font-size:12px;color:var(--muted);}
         </div>
         <div class="icard">
           <h4><i style="background:var(--amber);color:var(--ink)">3</i>為什麼做這個生成器？</h4>
-          <p>窗櫺是許多長輩熟悉的老房子記憶，一看到就能聊起「以前阿公家的窗」「廟口的雕花門」。它的花樣規律又整齊，很適合拿來上色、剪紙。</p>
+          <p>窗櫺是許多長輩熟悉的老房子記憶，一看到就能聊起「常去的那間廟」「阿嬤家的鐵窗花」。它的花樣規律又整齊，很適合拿來上色、剪紙。</p>
           <ul>
             <li><b>木窗彩色</b>：投影或印出來，先欣賞、先聊天</li>
             <li><b>線稿上色</b>：每一格都可以塗不同顏色，像彩繪玻璃</li>
@@ -231,7 +231,7 @@ footer.site{padding:18px;text-align:center;font-size:12px;color:var(--muted);}
         </div>
       </div>
       <div class="steps">
-        <div class="step"><b>帶活動小提示 ①</b>先看木窗彩色版，問大家：「你在哪裡看過這種窗？家裡以前的窗長什麼樣子？」</div>
+        <div class="step"><b>帶活動小提示 ①</b>先看木窗彩色版，問大家：「去廟裡拜拜時，有沒有看過這種窗？家裡以前的鐵窗是什麼花樣？」</div>
         <div class="step"><b>帶活動小提示 ②</b>一起找規律：「這扇窗的格子，是一樣的形狀一直重複嗎？」再挑喜歡的花樣上色或剪紙。</div>
         <div class="step"><b>帶活動小提示 ③</b>完成後貼在窗戶或燈罩上，光從格子透出來，就是自己做的窗花。</div>
       </div>
@@ -277,8 +277,8 @@ function iceCrack(x,y,w,h,s,rng){
 
 /* ---------- 窗櫺紋（回傳木條中心線 path） ---------- */
 const PATS=[
- {id:'ice',name:'冰裂紋',hint:'像冬天湖面裂開的冰，每次產生都不一樣。',f:(x,y,w,h,s,rng,out)=>{const ps=iceCrack(x,y,w,h,s*1.25,rng);out.polys=ps;return ps.map(p=>M(...p[0])+p.slice(1).map(q=>L(...q)).join('')+'Z').join('');}},
- {id:'iceplum',name:'冰裂梅花',hint:'冰裂紋上開著梅花：冬去春來、苦盡甘來。',f:(x,y,w,h,s,rng,out)=>{const d=PATS[0].f(x,y,w,h,s,rng,out);out.plum=true;return d;}},
+ {id:'ice',name:'冰裂紋',hint:'像冰面裂開的紋路，象徵冰清玉潔；每次產生都不一樣。',f:(x,y,w,h,s,rng,out)=>{const ps=iceCrack(x,y,w,h,s*1.25,rng);out.polys=ps;return ps.map(p=>M(...p[0])+p.slice(1).map(q=>L(...q)).join('')+'Z').join('');}},
+ {id:'iceplum',name:'冰裂梅花',hint:'冰裂紋配上梅花：寒冬將盡、春天要來。',f:(x,y,w,h,s,rng,out)=>{const d=PATS[0].f(x,y,w,h,s,rng,out);out.plum=true;return d;}},
  {id:'step',name:'步步錦',hint:'木條一橫一豎交替排列，祝福步步高升。',f:(x,y,w,h,s)=>{let d='';const nx=Math.ceil(w/s)+1,ny=Math.ceil(h/s)+1;
    for(let i=0;i<=nx;i++)d+=M(x+i*s,y)+L(x+i*s,y+h);for(let j=0;j<=ny;j++)d+=M(x,y+j*s)+L(x+w,y+j*s);
    for(let i=0;i<nx;i++)for(let j=0;j<ny;j++){const cx=x+i*s,cy=y+j*s;if((i+j)%2===0)d+=M(cx,cy+s/2)+L(cx+s*.62,cy+s/2);else d+=M(cx+s/2,cy+s)+L(cx+s/2,cy+s*.38);}return d;}},
